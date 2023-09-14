@@ -35,6 +35,9 @@ jobs:
                 docker compose stop
                 docker system prune -f
                 docker compose up -d
+                docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "SELECT 1;"
+                docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "DROP DATABASE IF EXISTS rc_can_app;"
+                docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "CREATE DATABASE rc_can_app;"
                 docker compose exec php-fpm composer install
                 cd .. && chmod 777 -R prod
                 cd /root/prod
