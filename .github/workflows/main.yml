@@ -36,4 +36,6 @@ jobs:
                 docker system prune -f
                 docker compose up -d
                 docker compose exec php-fpm composer install
+                cd .. && chmod 777 -R prod
+                cd /root/prod
                 docker compose exec php-fpm composer create-db-and-migrate
