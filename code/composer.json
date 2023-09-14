@@ -47,8 +47,11 @@
             "@php artisan key:generate --ansi"
         ],
         "create-db-and-migrate": [
-            "@php artisan db:create",
-            "@php artisan migrate"
+            "@php artisan migrate",
+            "@php artisan db:seed",
+            "@php artisan cache:clear",
+            "@php artisan config:clear",
+            "@php artisan view:clear"
         ]
     },
     "extra": {
