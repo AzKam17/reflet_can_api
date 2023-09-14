@@ -47,10 +47,10 @@
             "@php artisan key:generate --ansi"
         ],
         "create-db-and-migrate": [
-            "@php artisan migrate --no-interaction",
-            "@php artisan db:seed --no-interaction",
+            "@php artisan migrate --no-interaction --force",
+            "@php artisan db:seed --no-interaction --force",
             "@php artisan cache:clear --no-interaction",
-            "@php artisan config:clear --no-interaction ",
+            "@php artisan config:clear --no-interaction",
             "@php artisan view:clear --no-interaction"
         ]
     },
