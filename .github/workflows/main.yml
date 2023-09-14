@@ -1,0 +1,39 @@
+name: Deploy to Prod VPS
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy repository contents to remote server via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          source: "."
+          target: "/root/prod"
+
+      - name: Executing remote command via ssh
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+                cd /root/prod && git pull origin prod
+                docker compose stop
+                docker system prune -f
+                docker compose up -d
+                docker compose exec php-fpm composer install
+                docker compose exec php-fpm composer create-db-and-migrate
