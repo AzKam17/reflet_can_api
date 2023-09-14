@@ -1,0 +1,45 @@
+###############################################################################
+#                          Generated on phpdocker.io                          #
+###############################################################################
+version: '3.1'
+services:
+    memcached:
+        image: 'memcached:alpine'
+
+    mariadb:
+        image: 'mariadb:11.0'
+        working_dir: /application
+        volumes:
+            - './code:/application'
+        environment:
+            - MYSQL_ROOT_PASSWORD=Abidjan2024
+            - MYSQL_DATABASE=rc_can_app
+            - MYSQL_USER=redoc_ddyr
+            - MYSQL_PASSWORD=Abidjan2024
+        ports:
+            - '38003:3306'
+
+    webserver:
+        image: 'nginx:alpine'
+        working_dir: /application
+        volumes:
+            - './code:/application'
+            - './phpdocker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf'
+        ports:
+            - '38000:80'
+
+    php-fpm:
+        build: phpdocker/php-fpm
+        working_dir: /application
+        volumes:
+            - './code:/application'
+            - './phpdocker/php-fpm/php-ini-overrides.ini:/etc/php/8.2/fpm/conf.d/99-overrides.ini'
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        depends_on:
+            - mariadb
+        ports:
+            - '38001:80'
+        environment:
+            - PMA_HOST=mariadb
+            - PMA_PORT=3306
