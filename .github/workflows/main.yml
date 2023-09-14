@@ -31,6 +31,7 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           script: |
+            cd /root/prod
             docker compose stop
             docker system prune -f
             docker compose up -d
@@ -43,6 +44,7 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           script: |
+            cd /root/prod
             docker compose exec mariadb bash /root/scripts/save_script.sh 
 
       - name: Executing remote command via ssh
