@@ -23,6 +23,18 @@ jobs:
           source: "."
           target: "/root/prod"
 
+      - name: Restart Docker Services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+            docker compose stop
+            docker system prune -f
+            docker compose up -d
+
       - name: Backup Database
         uses: appleboy/ssh-action@master
         with:
@@ -42,9 +54,6 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           script: |
                 cd /root/prod && git pull origin prod
-                docker compose stop
-                docker system prune -f
-                docker compose up -d
                 docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "SELECT 1;"
                 docker compose exec php-fpm composer install
                 cd .. && chmod 777 -R prod
