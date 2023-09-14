@@ -45,14 +45,6 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
-        ],
-        "create-db-and-migrate": [
-            "@cat .env",
-            "@php artisan migrate --no-interaction --force",
-            "@php artisan db:seed --no-interaction --force",
-            "@php artisan cache:clear --no-interaction",
-            "@php artisan config:clear --no-interaction",
-            "@php artisan view:clear --no-interaction"
         ]
     },
     "extra": {

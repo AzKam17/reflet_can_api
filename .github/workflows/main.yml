@@ -23,6 +23,18 @@ jobs:
           source: "."
           target: "/root/prod"
 
+      - name: Backup Database
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+            backup_filename="/root/saves/prod/$(date +'%d_%m_%Y_%H_%M').sql"
+            docker compose exec mariadb mariadb-dump -u root --password=${{ secrets.DB_PROD_PASSWORD }} rc_can_app > "$backup_filename"
+
+
       - name: Executing remote command via ssh
         uses: appleboy/ssh-action@master
         with:
@@ -36,9 +48,8 @@ jobs:
                 docker system prune -f
                 docker compose up -d
                 docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "SELECT 1;"
-                docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "DROP DATABASE IF EXISTS rc_can_app;"
-                docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "CREATE DATABASE rc_can_app;"
                 docker compose exec php-fpm composer install
                 cd .. && chmod 777 -R prod
-                cd /root/prod
-                docker compose exec php-fpm composer create-db-and-migrate
+                cd /root/
+                docker compose exec php-fpm php artisan migrate --force
+                docker compose exec php-fpm php artisan db:seed --force
