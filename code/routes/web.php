@@ -20,6 +20,11 @@ Route::get('/', function () {
 });
 
 
+Route::get('/test', function () {
+    return 'Hello World';
+});
+
+
 Route::get('/az', function () {
     // Store data in the cache for 5 minutes
     Cache::put('example_key', 'This is cached data', 5);
