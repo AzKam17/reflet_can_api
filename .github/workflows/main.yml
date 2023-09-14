@@ -31,9 +31,7 @@ jobs:
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSHKEY }}
           script: |
-            backup_filename="/root/saves/prod_$(date +'%d_%m_%Y_%H_%M').sql"
-            docker compose exec mariadb mariadb-dump -u root --password=${{ secrets.DB_PROD_PASSWORD }} rc_can_app > "$backup_filename"
-
+            docker compose exec mariadb bash /root/scripts/save_script.sh 
 
       - name: Executing remote command via ssh
         uses: appleboy/ssh-action@master

@@ -13,6 +13,7 @@ services:
             - './code:/application'
             - './.docker/mariadb_data:/var/lib/mysql'
             - './.docker/mariadb_saves:/root/saves'
+            - './docker/mariadb_scripts:/root/scripts'
         environment:
             - MYSQL_ROOT_PASSWORD=Abidjan2024
             - MYSQL_DATABASE=rc_can_app
