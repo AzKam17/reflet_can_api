@@ -47,7 +47,7 @@ jobs:
             cd /root/prod
             docker compose exec mariadb bash /root/scripts/save_script.sh 
 
-      - name: Executing remote command via ssh
+      - name: Apply changes
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
