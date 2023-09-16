@@ -1,0 +1,67 @@
+name: Deploy to Prod VPS
+
+on:
+  push:
+    branches:
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Copy repository contents to remote server via scp
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          source: "."
+          target: "/root/prod"
+
+      - name: Restart Docker Services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+            cd /root/prod
+            docker compose stop
+            docker system prune -f
+            docker compose up -d
+
+      - name: Backup Database
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+            cd /root/prod
+            docker compose exec mariadb bash /root/scripts/save_script.sh 
+
+      - name: Apply changes
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSHKEY }}
+          script: |
+                cd /root/prod && git pull origin prod
+                docker compose exec mariadb mariadb -u root --password=${{ secrets.DB_PROD_PASSWORD }} -e "SELECT 1;"
+                docker compose exec php-fpm composer install
+                cd .. && chmod 777 -R prod
+                cd /root/prod
+                docker compose exec php-fpm php bin/console d:d:d --force  --no-interaction
+                docker compose exec php-fpm php bin/console d:d:c
+                docker compose exec php-fpm php bin/console d:m:m --no-interaction
+                docker compose exec php-fpm php bin/console d:f:l --no-interaction
+                docker compose exec php-fpm php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction
