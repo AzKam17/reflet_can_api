@@ -60,5 +60,8 @@ jobs:
                 docker compose exec php-fpm composer install
                 cd .. && chmod 777 -R prod
                 cd /root/prod
-                docker compose exec php-fpm php artisan migrate --force
-                docker compose exec php-fpm php artisan db:seed --force
+                docker compose exec php-fpm php bin/console d:d:d --force  --no-interaction
+                docker compose exec php-fpm php bin/console d:d:c
+                docker compose exec php-fpm php bin/console d:m:m --no-interaction
+                docker compose exec php-fpm php bin/console d:f:l --no-interaction
+                docker compose exec php-fpm php bin/console lexik:jwt:generate-keypair --overwrite --no-interaction
